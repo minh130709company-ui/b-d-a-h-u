@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gacha Tình Yêu - Thu Thập Sticker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffd6e7, #c1f0ff);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid #ff6b9d;
+        }
+        
+        h1 {
+            color: #ff4d87;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8);
+        }
+        
+        .subtitle {
+            color: #555;
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 15px;
+            line-height: 1.5;
+        }
+        
+        .instructions {
+            background: #fff9fc;
+            padding: 15px;
+            border-radius: 15px;
+            border-left: 5px solid #ff6b9d;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .gacha-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 3px solid #ff9ec0;
+        }
+        
+        .gacha-machine {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .center-ball {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 30% 30%, #ff4d87, #ff2a6d);
+            border-radius: 50%;
+            z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(255, 77, 135, 0.7);
+            animation: pulse 2s infinite;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .center-ball:hover {
+            transform: scale(1.1);
+        }
+        
+        .center-ball i {
+            font-size: 40px;
+            color: white;
+        }
+        
+        .reward-ball {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            overflow: hidden;
+            border: 3px solid transparent;
+        }
+        
+        .reward-ball img {
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .reward-ball .ball-number {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: #ff4d87;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .spin-button {
+            background: linear-gradient(to right, #ff4d87, #ff9a3d);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(255, 77, 135, 0.4);
+            transition: all 0.3s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .spin-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(255, 77, 135, 0.6);
+        }
+        
+        .spin-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .collection-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid #4dc3ff;
+        }
+        
+        .section-title {
+            color: #ff4d87;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #ffb8d0;
+        }
+        
+        .collection-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .collection-slot {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 15px;
+            background: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed #a1d8ff;
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        
+        .collection-slot.filled {
+            border: 2px solid #4dc3ff;
+            background: white;
+            box-shadow: 0 5px 15px rgba(77, 195, 255, 0.3);
+        }
+        
+        .collection-slot img {
+            width: 90%;
+            height: 90%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        
+        .collection-slot .slot-number {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #4dc3ff;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .progress-container {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #4dc3ff, #ff4d87);
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .result-display {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 3px solid #ffcc00;
+            text-align: center;
+            display: none;
+        }
+        
+        .result-title {
+            color: #ff4d87;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .result-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .result-ball {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border: 5px solid #ffcc00;
+        }
+        
+        .result-ball img {
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .result-info {
+            flex: 1;
+            min-width: 250px;
+            text-align: left;
+        }
+        
+        .result-name {
+            font-size: 1.8rem;
+            color: #ff4d87;
+            margin-bottom: 10px;
+        }
+        
+        .result-message {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        .treasure-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 5px solid #ffcc00;
+            text-align: center;
+            display: none;
+        }
+        
+        .treasure-title {
+            color: #ff9900;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .treasure-message {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 25px;
+        }
+        
+        .treasure-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .treasure-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .treasure-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .treasure-reward {
+            flex: 1;
+            min-width: 300px;
+            text-align: left;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .spinning {
+            animation: spin 10s linear infinite;
+        }
+        
+        .voice-notice {
+            background: #e6f7ff;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 5px solid #4dc3ff;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .voice-notice i {
+            color: #4dc3ff;
+            font-size: 24px;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #777;
+            font-size: 0.9rem;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .gacha-machine {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .collection-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-heart"></i> Gacha Tình Yêu <i class="fas fa-heart"></i></h1>
+            <p class="subtitle">Quay để thu thập 10 sticker đặc biệt và mở khóa kho báu bí mật dành riêng cho bạn!</p>
+            <div class="instructions">
+                <p><i class="fas fa-lightbulb"></i> <strong>Cách chơi:</strong> Nhấn nút "Quay Ngay" để nhận sticker ngẫu nhiên. Thu thập đủ 10 sticker khác nhau để mở khóa phần thưởng đặc biệt!</p>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <section class="gacha-section">
+                <h2 class="section-title">Máy Gacha Tình Yêu</h2>
+                <div class="gacha-machine">
+                    <div class="center-ball" id="centerBall">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <!-- Các bóng phần thưởng sẽ được thêm bằng JavaScript -->
+                </div>
+                
+                <button class="spin-button" id="spinButton">
+                    <i class="fas fa-play-circle"></i> Quay Ngay
+                </button>
+                
+                <div class="voice-notice">
+                    <i class="fas fa-volume-up"></i>
+                    <div>
+                        <strong>Hiệu ứng âm thanh:</strong> Mỗi sticker có thông điệp giọng nói riêng. Hãy bật loa để trải nghiệm đầy đủ nhé!
+                    </div>
+                </div>
+            </section>
+            
+            <section class="collection-section">
+                <h2 class="section-title">Bộ Sưu Tập Sticker</h2>
+                <p style="text-align: center; margin-bottom: 20px; color: #666;">Thu thập đủ 10 sticker để mở khóa kho báu bí mật!</p>
+                
+                <div class="collection-container" id="collectionContainer">
+                    <!-- Các ô sticker sẽ được thêm bằng JavaScript -->
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>Tiến độ thu thập</span>
+                        <span id="progressCount">0/10</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 25px; color: #666; font-style: italic;">
+                    <p><i class="fas fa-star"></i> Mỗi sticker là một lời nhắn yêu thương đặc biệt dành cho bạn!</p>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Hiển thị kết quả quay -->
+        <div class="result-display" id="resultDisplay">
+            <h2 class="result-title">Chúc Mừng!</h2>
+            <div class="result-content">
+                <div class="result-ball" id="resultBall">
+                    <!-- Hình ảnh sticker sẽ được thêm bằng JavaScript -->
+                </div>
+                <div class="result-info">
+                    <h3 class="result-name" id="resultName">Sticker Tình Yêu</h3>
+                    <p class="result-message" id="resultMessage">Bạn đã nhận được một sticker đặc biệt!</p>
+                    <div id="voiceMessage">
+                        <i class="fas fa-volume-up"></i> Đang phát thông điệp giọng nói...
+                    </div>
+                    <button id="closeResult" style="margin-top: 20px; padding: 10px 25px; background: #ff4d87; color: white; border: none; border-radius: 50px; font-size: 1.1rem; cursor: pointer;">
+                        Tiếp tục quay
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Kho báu sau khi thu thập đủ 10 sticker -->
+        <div class="treasure-section" id="treasureSection">
+            <h2 class="treasure-title">KHO BÁU ĐÃ ĐƯỢC MỞ KHÓA!</h2>
+            <p class="treasure-message">Chúc mừng bạn đã thu thập đủ 10 sticker! Đây là phần thưởng đặc biệt dành riêng cho bạn:</p>
+            
+            <div class="treasure-content">
+                <div class="treasure-image">
+                    <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Kho báu tình yêu">
+                </div>
+                <div class="treasure-reward">
+                    <h3 style="color: #ff9900; font-size: 1.8rem; margin-bottom: 15px;">Phần Thưởng Đặc Biệt</h3>
+                    <ul style="font-size: 1.2rem; line-height: 1.8; color: #555;">
+                        <li><i class="fas fa-heart" style="color: #ff4d87;"></i> Một buổi tối lãng mạn bất ngờ</li>
+                        <li><i class="fas fa-heart" style="color: #ff4d87;"></i> Món quà đặc biệt được chọn riêng cho bạn</li>
+                        <li><i class="fas fa-heart" style="color: #ff4d87;"></i> Lời hứa luôn yêu thương và trân trọng bạn</li>
+                        <li><i class="fas fa-heart" style="color: #ff4d87;"></i> Một điều bất ngờ khác trong ngày gần nhất</li>
+                    </ul>
+                    <p style="margin-top: 20px; font-size: 1.3rem; font-weight: bold; color: #ff4d87;">
+                        Cảm ơn bạn đã tham gia trò chơi này! Hãy kiểm tra tin nhắn để nhận phần thưởng nhé!
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Trang web được tạo với tình yêu <i class="fas fa-heart" style="color: #ff4d87;"></i> | Demo Gacha Dỗ Người Yêu</p>
+        </footer>
+    </div>
+
+    <script>
+        // Dữ liệu các sticker phần thưởng
+        const rewards = [
+            {
+                id: 1,
+                name: "Trái Tim Hồng",
+                imageUrl: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80",
+                message: "Sticker trái tim đại diện cho tình yêu nồng nàn của anh dành cho em!",
+                voiceMessage: "Anh yêu em nhiều hơn những gì em có thể tưởng tượng!"
+            },
+            {
+                id: 2,
+                name: "Mặt Trời Ấm Áp",
+                imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+                message: "Như mặt trời sưởi ấm ngày đông, em là nguồn sáng trong cuộc đời anh!",
+                voiceMessage: "Mỗi ngày bên em đều ấm áp như ánh mặt trời!"
+            },
+            {
+                id: 3,
+                name: "Bông Hoa Xinh",
+                imageUrl: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+                message: "Em xinh đẹp và dịu dàng như đóa hoa này, luôn tỏa hương thơm ngát!",
+                voiceMessage: "Với anh, em luôn là bông hoa đẹp nhất!"
+            },
+            {
+                id: 4,
+                name: "Cầu Vồng Hy Vọng",
+                imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+                message: "Cầu vồng sau mưa, như tình yêu của chúng ta luôn rực rỡ sau thử thách!",
+                voiceMessage: "Cùng nhau chúng ta sẽ vượt qua mọi khó khăn, em nhé!"
+            },
+            {
+                id: 5,
+                name: "Ngôi Sao Lấp Lánh",
+                imageUrl: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80",
+                message: "Em là ngôi sao sáng nhất trong bầu trời đêm của anh!",
+                voiceMessage: "Ánh mắt em lấp lánh hơn cả những vì sao!"
+            },
+            {
+                id: 6,
+                name: "Mặt Trăng Dịu Dàng",
+                imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+                message: "Dịu dàng và bí ẩn như mặt trăng, em luôn khiến anh say đắm!",
+                voiceMessage: "Mỗi đêm nhìn trăng, anh lại nhớ đến em!"
+            },
+            {
+                id: 7,
+                name: "Đôi Chim Ân Ái",
+                imageUrl: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80",
+                message: "Như đôi chim cùng nhau bay lượn, chúng ta sẽ bên nhau mãi mãi!",
+                voiceMessage: "Anh muốn được bên em như đôi chim cùng nhau bay suốt đời!"
+            },
+            {
+                id: 8,
+                name: "Cây Cối Vững Chãi",
+                imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80",
+                message: "Tình yêu chúng ta vững chãi như cây cổ thụ, ngày càng bền chặt!",
+                voiceMessage: "Tình yêu của chúng ta sẽ mãi vững bền như cây cổ thụ!"
+            },
+            {
+                id: 9,
+                name: "Đại Dương Bao La",
+                imageUrl: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1456&q=80",
+                message: "Tình yêu anh dành cho em sâu thẳm và bao la như đại dương!",
+                voiceMessage: "Tình cảm anh dành cho em nhiều như nước trong đại dương!"
+            },
+            {
+                id: 10,
+                name: "Món Quà Bất Ngờ",
+                imageUrl: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80",
+                message: "Mỗi ngày bên em đều là một món quà quý giá với anh!",
+                voiceMessage: "Em chính là món quà tuyệt vời nhất mà cuộc đời ban tặng cho anh!"
+            }
+        ];
+
+        // Biến lưu trữ trạng thái
+        let collectedRewards = [];
+        let isSpinning = false;
+        let spinCount = 0;
+        const totalSpinsNeeded = 10;
+
+        // Khởi tạo các bóng phần thưởng xung quanh bóng trung tâm
+        function initRewardBalls() {
+            const gachaMachine = document.querySelector('.gacha-machine');
+            
+            rewards.forEach((reward, index) => {
+                const ball = document.createElement('div');
+                ball.className = 'reward-ball floating';
+                ball.dataset.id = reward.id;
+                
+                // Tính toán vị trí xung quanh vòng tròn
+                const radius = 140;
+                const angle = (index / rewards.length) * 2 * Math.PI;
+                const x = radius * Math.cos(angle);
+                const y = radius * Math.sin(angle);
+                
+                ball.style.left = `calc(50% + ${x}px - 35px)`;
+                ball.style.top = `calc(50% + ${y}px - 35px)`;
+                
+                // Thêm hình ảnh vào bóng
+                const img = document.createElement('img');
+                img.src = reward.imageUrl;
+                img.alt = reward.name;
+                img.loading = "lazy";
+                
+                // Thêm số thứ tự
+                const number = document.createElement('div');
+                number.className = 'ball-number';
+                number.textContent = reward.id;
+                
+                ball.appendChild(img);
+                ball.appendChild(number);
+                gachaMachine.appendChild(ball);
+                
+                // Thêm hiệu ứng trễ cho animation
+                ball.style.animationDelay = `${index * 0.2}s`;
+            });
+        }
+
+        // Khởi tạo các ô sticker trong bộ sưu tập
+        function initCollectionSlots() {
+            const collectionContainer = document.getElementById('collectionContainer');
+            
+            for (let i = 1; i <= totalSpinsNeeded; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'collection-slot';
+                slot.id = `slot-${i}`;
+                
+                const number = document.createElement('div');
+                number.className = 'slot-number';
+                number.textContent = i;
+                
+                slot.appendChild(number);
+                collectionContainer.appendChild(slot);
+            }
+        }
+
+        // Cập nhật tiến độ
+        function updateProgress() {
+            const progressCount = document.getElementById('progressCount');
+            const progressFill = document.getElementById('progressFill');
+            const spinButton = document.getElementById('spinButton');
+            
+            const progress = (collectedRewards.length / totalSpinsNeeded) * 100;
+            progressCount.textContent = `${collectedRewards.length}/${totalSpinsNeeded}`;
+            progressFill.style.width = `${progress}%`;
+            
+            // Nếu đã thu thập đủ 10 sticker
+            if (collectedRewards.length >= totalSpinsNeeded) {
+                spinButton.disabled = true;
+                spinButton.innerHTML = '<i class="fas fa-check-circle"></i> Đã Thu Thập Đủ!';
+                
+                // Hiển thị kho báu sau 1 giây
+                setTimeout(() => {
+                    document.getElementById('treasureSection').style.display = 'block';
+                    document.getElementById('treasureSection').scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Phát âm thanh chúc mừng (giả lập)
+                    playVoiceMessage("Chúc mừng bạn đã thu thập đủ 10 sticker! Phần thưởng đặc biệt đã sẵn sàng dành cho bạn!");
+                }, 1000);
+            }
+        }
+
+        // Quay để nhận sticker ngẫu nhiên
+        function spinGacha() {
+            if (isSpinning || collectedRewards.length >= totalSpinsNeeded) return;
+            
+            isSpinning = true;
+            spinCount++;
+            
+            const spinButton = document.getElementById('spinButton');
+            spinButton.disabled = true;
+            spinButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang quay...';
+            
+            // Chọn một phần thưởng ngẫu nhiên (chưa có trong bộ sưu tập)
+            let availableRewards = rewards.filter(reward => !collectedRewards.some(r => r.id === reward.id));
+            
+            // Nếu đã có đủ 10 sticker khác nhau, cho phép lặp lại
+            if (availableRewards.length === 0) {
+                availableRewards = rewards;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * availableRewards.length);
+            const selectedReward = availableRewards[randomIndex];
+            
+            // Hiệu ứng quay
+            const balls = document.querySelectorAll('.reward-ball');
+            balls.forEach(ball => {
+                ball.classList.remove('floating');
+                ball.classList.add('spinning');
+            });
+            
+            // Sau 2 giây, dừng hiệu ứng và hiển thị kết quả
+            setTimeout(() => {
+                balls.forEach(ball => {
+                    ball.classList.remove('spinning');
+                    ball.classList.add('floating');
+                });
+                
+                // Thêm vào bộ sưu tập nếu chưa có
+                if (!collectedRewards.some(r => r.id === selectedReward.id)) {
+                    collectedRewards.push(selectedReward);
+                    updateCollectionSlot(selectedReward);
+                }
+                
+                // Hiển thị kết quả
+                showResult(selectedReward);
+                
+                // Cập nhật tiến độ
+                updateProgress();
+                
+                isSpinning = false;
+                spinButton.disabled = false;
+                spinButton.innerHTML = '<i class="fas fa-play-circle"></i> Quay Ngay';
+            }, 2000);
+        }
+
+        // Cập nhật ô sticker trong bộ sưu tập
+        function updateCollectionSlot(reward) {
+            const slotIndex = collectedRewards.length; // Vị trí ô tiếp theo
+            const slot = document.getElementById(`slot-${slotIndex}`);
+            
+            if (slot) {
+                slot.classList.add('filled');
+                
+                const img = document.createElement('img');
+                img.src = reward.imageUrl;
+                img.alt = reward.name;
+                img.loading = "lazy";
+                
+                // Xóa nội dung cũ (nếu có) và thêm hình ảnh mới
+                while (slot.firstChild) {
+                    slot.firstChild.remove();
+                }
+                slot.appendChild(img);
+                
+                // Thêm lại số thứ tự
+                const number = document.createElement('div');
+                number.className = 'slot-number';
+                number.textContent = slotIndex;
+                slot.appendChild(number);
+            }
+        }
+
+        // Hiển thị kết quả quay
+        function showResult(reward) {
+            const resultDisplay = document.getElementById('resultDisplay');
+            const resultBall = document.getElementById('resultBall');
+            const resultName = document.getElementById('resultName');
+            const resultMessage = document.getElementById('resultMessage');
+            const voiceMessage = document.getElementById('voiceMessage');
+            
+            // Cập nhật thông tin kết quả
+            resultName.textContent = reward.name;
+            resultMessage.textContent = reward.message;
+            
+            // Thêm hình ảnh vào bóng kết quả
+            resultBall.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = reward.imageUrl;
+            img.alt = reward.name;
+            resultBall.appendChild(img);
+            
+            // Hiển thị thông điệp giọng nói
+            voiceMessage.innerHTML = `<i class="fas fa-volume-up"></i> Thông điệp: "${reward.voiceMessage}"`;
+            
+            // Hiển thị kết quả
+            resultDisplay.style.display = 'block';
+            resultDisplay.scrollIntoView({ behavior: 'smooth' });
+            
+            // Phát thông điệp giọng nói (giả lập)
+            playVoiceMessage(reward.voiceMessage);
+        }
+
+        // Giả lập phát thông điệp giọng nói
+        function playVoiceMessage(message) {
+            // Trong thực tế, bạn có thể sử dụng Web Speech API hoặc pre-recorded audio
+            console.log("Phát thông điệp giọng nói:", message);
+            
+            // Đây là nơi bạn có thể tích hợp với API đọc văn bản thành giọng nói
+            // Hoặc phát file audio đã ghi sẵn tương ứng với mỗi sticker
+        }
+
+        // Sự kiện khi trang web được tải
+        document.addEventListener('DOMContentLoaded', function() {
+            // Khởi tạo các bóng phần thưởng
+            initRewardBalls();
+            
+            // Khởi tạo các ô sticker
+            initCollectionSlots();
+            
+            // Cập nhật tiến độ ban đầu
+            updateProgress();
+            
+            // Sự kiện cho nút quay
+            document.getElementById('spinButton').addEventListener('click', spinGacha);
+            
+            // Sự kiện cho bóng trung tâm
+            document.getElementById('centerBall').addEventListener('click', spinGacha);
+            
+            // Sự kiện đóng kết quả
+            document.getElementById('closeResult').addEventListener('click', function() {
+                document.getElementById('resultDisplay').style.display = 'none';
+            });
+            
+            // Thêm một số sticker ban đầu để demo
+            setTimeout(() => {
+                // Thêm 2 sticker ban đầu để người dùng thấy có tiến độ
+                if (collectedRewards.length === 0) {
+                    const initialRewards = [rewards[0], rewards[4]];
+                    initialRewards.forEach(reward => {
+                        if (!collectedRewards.some(r => r.id === reward.id)) {
+                            collectedRewards.push(reward);
+                            updateCollectionSlot(reward);
+                        }
+                    });
+                    updateProgress();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
