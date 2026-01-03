@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            touch-action: none;
+            background-color: #000;
+        }
+
+        /* Lớp canvas để vẽ */
+        #drawingCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            cursor: crosshair;
+        }
+
+        /* Lớp nền gradient */
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #ff3366, #ff9933, #33ccff, #9966ff);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Container cho các hình rơi */
+        .falling-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Thông điệp */
+        .message-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        .apology-message {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px 35px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            max-width: 85%;
+            transform: translateY(20px);
+            transition: transform 1s ease;
+        }
+
+        .apology-message h1 {
+            font-size: 1.5rem;
+            color: #ff3366;
+            line-height: 1.4;
+        }
+
+        /* Điều khiển */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 5;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .control-btn {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
+            color: #ff3366;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .control-btn.active {
+            background-color: #ff3366;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .control-btn:hover, .control-btn:active {
+            transform: scale(1.05);
+        }
+
+        /* Hướng dẫn nhỏ */
+        .hint {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            color: #333;
+            z-index: 5;
+            text-align: center;
+            opacity: 0.8;
+            animation: pulseHint 2s infinite;
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        /* Hình rơi */
+        .falling-heart, .falling-star {
+            position: absolute;
+            pointer-events: none;
+            z-index: 3;
+            opacity: 0;
+        }
+
+        .falling-heart {
+            color: #ff3366;
+            font-size: 0;
+            text-shadow: 0 0 10px rgba(255, 51, 102, 0.7);
+            animation: heartFall linear forwards;
+        }
+
+        .falling-star {
+            color: #ffcc00;
+            font-size: 0;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+            animation: starFall linear forwards;
+        }
+
+        @keyframes heartFall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes starFall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0.8;
+            }
+        }
+
+        /* Hiệu ứng vẽ */
+        .drawing-effect {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .controls {
+                bottom: 15px;
+                gap: 10px;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
+            
+            .hint {
+                top: 15px;
+                font-size: 0.9rem;
+                padding: 8px 16px;
+            }
+            
+            .apology-message {
+                padding: 20px 25px;
+            }
+            
+            .apology-message h1 {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .controls {
+                bottom: 10px;
+                gap: 8px;
+            }
+            
+            .control-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 22px;
+            }
+            
+            .hint {
+                top: 10px;
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Nền gradient -->
+    <div class="gradient-bg" id="gradientBg"></div>
+    
+    <!-- Canvas để vẽ -->
+    <canvas id="drawingCanvas"></canvas>
+    
+    <!-- Container cho các hình rơi -->
+    <div class="falling-container" id="fallingContainer"></div>
+    
+    <!-- Thông điệp -->
+    <div class="message-container" id="messageContainer">
+        <div class="apology-message">
+            <h1>Tớ xin lỗi em bé lợn ngốc của tớ nkaaaaa</h1>
+        </div>
+    </div>
+    
+    <!-- Hướng dẫn -->
+    <div class="hint" id="hint">Vẽ trái tim ❤️ hoặc ngôi sao ⭐ để xem điều kỳ diệu!</div>
+    
+    <!-- Điều khiển -->
+    <div class="controls">
+        <button class="control-btn active" id="heartBtn" title="Vẽ trái tim">
+            ❤️
+        </button>
+        <button class="control-btn" id="starBtn" title="Vẽ ngôi sao">
+            ⭐
+        </button>
+        <button class="control-btn" id="clearBtn" title="Xóa tất cả">
+            🗑️
+        </button>
+        <button class="control-btn" id="magicBtn" title="Hiện thông điệp">
+            ✨
+        </button>
+    </div>
+
+    <script>
+        // Khai báo biến
+        let canvas, ctx;
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let drawMode = 'heart'; // 'heart' hoặc 'star'
+        let drawings = [];
+        let totalDrawings = 0;
+        let messageShown = false;
+        
+        // Màu sắc cho bút vẽ
+        const colors = [
+            '#ff3366', '#ff6633', '#ffcc33', '#33ff66',
+            '#33ccff', '#3366ff', '#9966ff', '#ff33cc'
+        ];
+        
+        // Khởi tạo khi trang load
+        window.addEventListener('DOMContentLoaded', init);
+        
+        function init() {
+            // Lấy các phần tử
+            canvas = document.getElementById('drawingCanvas');
+            ctx = canvas.getContext('2d');
+            const gradientBg = document.getElementById('gradientBg');
+            const messageContainer = document.getElementById('messageContainer');
+            const hint = document.getElementById('hint');
+            const heartBtn = document.getElementById('heartBtn');
+            const starBtn = document.getElementById('starBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const magicBtn = document.getElementById('magicBtn');
+            
+            // Cài đặt kích thước canvas
+            resizeCanvas();
+            
+            // Cài đặt style vẽ
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Ẩn hint sau 5 giây
+            setTimeout(() => {
+                hint.style.opacity = '0';
+                hint.style.transition = 'opacity 1s';
+                
+                setTimeout(() => {
+                    hint.style.display = 'none';
+                }, 1000);
+            }, 5000);
+            
+            // Hiển thị nền gradient từ từ
+            setTimeout(() => {
+                gradientBg.style.opacity = '1';
+            }, 500);
+            
+            // Xử lý sự kiện vẽ
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Xử lý sự kiện cảm ứng
+            canvas.addEventListener('touchstart', handleTouchStart);
+            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchend', stopDrawing);
+            
+            // Xử lý nút điều khiển
+            heartBtn.addEventListener('click', () => setDrawMode('heart'));
+            starBtn.addEventListener('click', () => setDrawMode('star'));
+            clearBtn.addEventListener('click', clearCanvas);
+            magicBtn.addEventListener('click', showMessage);
+            
+            // Xử lý thay đổi kích thước cửa sổ
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Hàm bắt đầu vẽ
+            function startDrawing(e) {
+                isDrawing = true;
+                [lastX, lastY] = getMousePos(e);
+                
+                // Thêm hiệu ứng khi bắt đầu vẽ
+                createDrawingEffect(lastX, lastY);
+            }
+            
+            // Hàm vẽ
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                e.preventDefault();
+                
+                const [x, y] = getMousePos(e);
+                
+                // Vẽ lên canvas
+                drawOnCanvas(lastX, lastY, x, y);
+                
+                // Phát hiện hình vẽ
+                detectShape(lastX, lastY, x, y);
+                
+                // Tạo hiệu ứng tại vị trí vẽ
+                createDrawingEffect(x, y);
+                
+                // Lưu vị trí cuối
+                [lastX, lastY] = [x, y];
+            }
+            
+            // Hàm dừng vẽ
+            function stopDrawing() {
+                if (!isDrawing) return;
+                
+                isDrawing = false;
+                
+                // Kiểm tra xem đã vẽ đủ để hiện thông điệp chưa
+                if (totalDrawings >= 10 && !messageShown) {
+                    setTimeout(() => {
+                        showMessage();
+                    }, 1000);
+                }
+            }
+            
+            // Hàm xử lý touch start
+            function handleTouchStart(e) {
+                e.preventDefault();
+                isDrawing = true;
+                const touch = e.touches[0];
+                [lastX, lastY] = [touch.clientX, touch.clientY];
+                createDrawingEffect(lastX, lastY);
+            }
+            
+            // Hàm xử lý touch move
+            function handleTouchMove(e) {
+                if (!isDrawing) return;
+                
+                e.preventDefault();
+                const touch = e.touches[0];
+                const x = touch.clientX;
+                const y = touch.clientY;
+                
+                drawOnCanvas(lastX, lastY, x, y);
+                detectShape(lastX, lastY, x, y);
+                createDrawingEffect(x, y);
+                
+                [lastX, lastY] = [x, y];
+            }
+            
+            // Hàm lấy vị trí chuột/touch
+            function getMousePos(e) {
+                let x, y;
+                
+                if (e.type.includes('touch')) {
+                    const touch = e.touches[0];
+                    x = touch.clientX;
+                    y = touch.clientY;
+                } else {
+                    x = e.clientX;
+                    y = e.clientY;
+                }
+                
+                return [x, y];
+            }
+            
+            // Hàm vẽ lên canvas
+            function drawOnCanvas(x1, y1, x2, y2) {
+                // Chọn màu ngẫu nhiên
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 8;
+                
+                // Bắt đầu vẽ đường
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+                
+                // Thêm điểm sáng
+                ctx.beginPath();
+                ctx.arc(x2, y2, 4, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                
+                // Lưu drawing vào mảng
+                drawings.push({
+                    x1, y1, x2, y2, color,
+                    timestamp: Date.now()
+                });
+                
+                // Giới hạn số lượng drawings
+                if (drawings.length > 100) {
+                    drawings.shift();
+                }
+            }
+            
+            // Hàm phát hiện hình vẽ
+            function detectShape(x1, y1, x2, y2) {
+                // Tính khoảng cách di chuyển
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Nếu di chuyển đủ xa
+                if (distance > 30) {
+                    totalDrawings++;
+                    
+                    // Tạo hình rơi dựa trên mode
+                    if (drawMode === 'heart') {
+                        createFallingHeart(x2, y2);
+                    } else {
+                        createFallingStar(x2, y2);
+                    }
+                }
+            }
+            
+            // Hàm tạo hiệu ứng vẽ
+            function createDrawingEffect(x, y) {
+                const effect = document.createElement('div');
+                effect.className = 'drawing-effect';
+                
+                // Màu sắc ngẫu nhiên
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                effect.style.background = `radial-gradient(circle, ${color} 0%, rgba(255,255,255,0) 70%)`;
+                effect.style.width = '40px';
+                effect.style.height = '40px';
+                effect.style.left = `${x}px`;
+                effect.style.top = `${y}px`;
+                effect.style.opacity = '0.7';
+                
+                document.body.appendChild(effect);
+                
+                // Hiệu ứng biến mất
+                setTimeout(() => {
+                    effect.style.opacity = '0';
+                    effect.style.transition = 'opacity 0.5s ease';
+                    
+                    setTimeout(() => {
+                        if (effect.parentNode) {
+                            document.body.removeChild(effect);
+                        }
+                    }, 500);
+                }, 100);
+            }
+            
+            // Hàm tạo trái tim rơi
+            function createFallingHeart(x, y) {
+                const heart = document.createElement('div');
+                heart.className = 'falling-heart';
+                heart.innerHTML = '❤️';
+                
+                // Vị trí bắt đầu
+                heart.style.left = `${x}px`;
+                heart.style.top = `${y}px`;
+                
+                // Kích thước ngẫu nhiên
+                const size = Math.random() * 30 + 25;
+                heart.style.fontSize = `${size}px`;
+                
+                // Thời gian rơi
+                const duration = Math.random() * 3 + 2;
+                heart.style.animationDuration = `${duration}s`;
+                
+                // Thêm vào container
+                document.getElementById('fallingContainer').appendChild(heart);
+                
+                // Bắt đầu animation
+                setTimeout(() => {
+                    heart.style.opacity = '1';
+                }, 10);
+                
+                // Xóa sau khi rơi xong
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.parentNode.removeChild(heart);
+                    }
+                }, duration * 1000);
+            }
+            
+            // Hàm tạo ngôi sao rơi
+            function createFallingStar(x, y) {
+                const star = document.createElement('div');
+                star.className = 'falling-star';
+                star.innerHTML = '⭐';
+                
+                // Vị trí bắt đầu
+                star.style.left = `${x}px`;
+                star.style.top = `${y}px`;
+                
+                // Kích thước ngẫu nhiên
+                const size = Math.random() * 35 + 25;
+                star.style.fontSize = `${size}px`;
+                
+                // Thời gian rơi
+                const duration = Math.random() * 4 + 2;
+                star.style.animationDuration = `${duration}s`;
+                
+                // Thêm vào container
+                document.getElementById('fallingContainer').appendChild(star);
+                
+                // Bắt đầu animation
+                setTimeout(() => {
+                    star.style.opacity = '1';
+                }, 10);
+                
+                // Xóa sau khi rơi xong
+                setTimeout(() => {
+                    if (star.parentNode) {
+                        star.parentNode.removeChild(star);
+                    }
+                }, duration * 1000);
+            }
+            
+            // Hàm đặt chế độ vẽ
+            function setDrawMode(mode) {
+                drawMode = mode;
+                
+                // Cập nhật trạng thái nút
+                heartBtn.classList.toggle('active', mode === 'heart');
+                starBtn.classList.toggle('active', mode === 'star');
+                
+                // Hiệu ứng chuyển đổi
+                const activeColor = mode === 'heart' ? '#ff3366' : '#ffcc00';
+                document.querySelector('.control-btn.active').style.backgroundColor = activeColor;
+            }
+            
+            // Hàm xóa canvas
+            function clearCanvas() {
+                // Xóa canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Xóa mảng drawings
+                drawings = [];
+                totalDrawings = 0;
+                
+                // Ẩn thông điệp nếu đang hiện
+                messageContainer.style.opacity = '0';
+                setTimeout(() => {
+                    messageContainer.style.display = 'none';
+                }, 500);
+                
+                messageShown = false;
+                
+                // Hiệu ứng xóa
+                createClearEffect();
+            }
+            
+            // Hàm tạo hiệu ứng xóa
+ 
