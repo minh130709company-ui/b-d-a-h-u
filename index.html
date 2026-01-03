@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            touch-action: none;
+            background-color: #000;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Container cho các hình rơi */
+        .falling-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Thông điệp thứ nhất */
+        .message-1 {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px 35px;
+            border-radius: 25px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(255, 105, 180, 0.2);
+            z-index: 2;
+            text-align: center;
+            max-width: 85%;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 2px solid #ff69b4;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .message-1.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .message-1 h1 {
+            font-size: 1.8rem;
+            color: #ff69b4;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        /* Thông điệp thứ hai */
+        .message-2 {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, #ff69b4, #ff8cc3);
+            padding: 30px 40px;
+            border-radius: 30px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6),
+                        0 0 0 1px rgba(255, 255, 255, 0.3);
+            z-index: 3;
+            text-align: center;
+            max-width: 90%;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 3px solid white;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .message-2.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .message-2 h1 {
+            font-size: 2rem;
+            color: white;
+            line-height: 1.4;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-weight: 700;
+        }
+
+        /* Hình rơi */
+        .falling-item {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            font-size: 0;
+            animation: fallDown linear forwards;
+            filter: drop-shadow(0 0 8px rgba(255, 105, 180, 0.5));
+            -webkit-filter: drop-shadow(0 0 8px rgba(255, 105, 180, 0.5));
+        }
+
+        @keyframes fallDown {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.8;
+            }
+        }
+
+        /* Hiệu ứng bung tim hồng */
+        .heart-explosion {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        .burst-heart {
+            position: absolute;
+            color: #ff69b4;
+            font-size: 0;
+            opacity: 0;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.8);
+            animation: burstOut linear forwards;
+            filter: drop-shadow(0 0 5px rgba(255, 105, 180, 0.7));
+            -webkit-filter: drop-shadow(0 0 5px rgba(255, 105, 180, 0.7));
+        }
+
+        @keyframes burstOut {
+            0% {
+                transform: scale(0) translate(0, 0);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1) translate(var(--tx), var(--ty));
+                opacity: 0.6;
+            }
+        }
+
+        /* Canvas để vẽ */
+        .draw-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            cursor: crosshair;
+        }
+
+        /* Hiệu ứng lấp lánh cho sao */
+        .star-glow {
+            animation: starTwinkle 1.5s infinite alternate;
+        }
+
+        @keyframes starTwinkle {
+            0% { filter: drop-shadow(0 0 5px rgba(255, 204, 0, 0.8)); }
+            100% { filter: drop-shadow(0 0 15px rgba(255, 255, 100, 0.9)); }
+        }
+
+        /* Hiệu ứng nhấp nháy cho tim hồng */
+        .heart-pulse {
+            animation: heartPulse 2s infinite;
+        }
+
+        @keyframes heartPulse {
+            0%, 100% { 
+                filter: drop-shadow(0 0 8px rgba(255, 105, 180, 0.7));
+                transform: scale(1);
+            }
+            50% { 
+                filter: drop-shadow(0 0 15px rgba(255, 105, 180, 0.9));
+                transform: scale(1.05);
+            }
+        }
+
+        /* Hiệu ứng tap - iOS style */
+        .ios-tap-effect {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 105, 180, 0.4) 0%, rgba(255, 105, 180, 0) 70%);
+            pointer-events: none;
+            z-index: 1;
+            transform: translate(-50%, -50%);
+            animation: tapEffect 0.6s ease-out forwards;
+        }
+
+        @keyframes tapEffect {
+            0% { width: 0; height: 0; opacity: 0.8; }
+            100% { width: 120px; height: 120px; opacity: 0; }
+        }
+
+        /* Responsive cho iOS */
+        @media (max-width: 768px) {
+            .message-1 {
+                padding: 20px 25px;
+                border-radius: 20px;
+            }
+            
+            .message-1 h1 {
+                font-size: 1.5rem;
+            }
+            
+            .message-2 {
+                padding: 25px 30px;
+                border-radius: 25px;
+            }
+            
+            .message-2 h1 {
+                font-size: 1.7rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .message-1 {
+                padding: 18px 22px;
+                border-radius: 18px;
+            }
+            
+            .message-1 h1 {
+                font-size: 1.3rem;
+            }
+            
+            .message-2 {
+                padding: 22px 26px;
+                border-radius: 22px;
+            }
+            
+            .message-2 h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Hiệu ứng nền tinh tế cho iOS */
+        .ios-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 105, 180, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(255, 182, 193, 0.03) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Nền iOS tinh tế -->
+    <div class="ios-background"></div>
+    
+    <!-- Canvas để vẽ -->
+    <canvas class="draw-canvas" id="drawCanvas"></canvas>
+    
+    <!-- Container cho các hình rơi -->
+    <div class="falling-container" id="fallingContainer"></div>
+    
+    <!-- Container cho hiệu ứng bung tim -->
+    <div class="heart-explosion" id="heartExplosion"></div>
+    
+    <!-- Thông điệp 1 (10 lần) -->
+    <div class="message-1" id="message1">
+        <h1>Bấm gì nhìu thí, lợn ngốc 😘😘😘🍉🍉🍉</h1>
+    </div>
+    
+    <!-- Thông điệp 2 (20 lần) -->
+    <div class="message-2" id="message2">
+        <h1>bé ngoannnn, tớ thương bé nhất thế giới luôn ý</h1>
+    </div>
+
+    <script>
+        // Khai báo biến
+        let clickCount = 0;
+        let isStarTurn = true; // Luân phiên: true = sao, false = tim
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let message1Shown = false;
+        let message2Shown = false;
+        
+        // Màu hồng iOS đa dạng
+        const pinkColors = [
+            '#ff69b4', // Hot Pink - chính
+            '#ff8cc3', // Light Pink
+            '#ff33cc', // Neon Pink
+            '#ff66cc', // Pastel Pink
+            '#ff3399', // Darker Pink
+            '#ff99cc', // Very Light Pink
+            '#ff1493'  // Deep Pink
+        ];
+        
+        // Lấy các phần tử
+        const fallingContainer = document.getElementById('fallingContainer');
+        const heartExplosion = document.getElementById('heartExplosion');
+        const message1 = document.getElementById('message1');
+        const message2 = document.getElementById('message2');
+        const drawCanvas = document.getElementById('drawCanvas');
+        const ctx = drawCanvas.getContext('2d');
+        
+        // Khởi tạo canvas
+        function initCanvas() {
+            drawCanvas.width = window.innerWidth;
+            drawCanvas.height = window.innerHeight;
+            
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 8;
+        }
+        
+        // Hàm tạo hình rơi
+        function createFallingItem(x, y, isStar) {
+            const item = document.createElement('div');
+            item.className = 'falling-item';
+            
+            if (isStar) {
+                item.innerHTML = '⭐';
+                item.style.color = '#ffcc00';
+                item.classList.add('star-glow');
+            } else {
+                item.innerHTML = '❤️';
+                // Chọn màu hồng ngẫu nhiên
+                const pinkColor = pinkColors[Math.floor(Math.random() * pinkColors.length)];
+                item.style.color = pinkColor;
+                item.classList.add('heart-pulse');
+            }
+            
+            // Vị trí bắt đầu
+            item.style.left = `${x}px`;
+            item.style.top = `${y}px`;
+            
+            // Kích thước ngẫu nhiên
+            const size = Math.random() * 40 + 30;
+            item.style.fontSize = `${size}px`;
+            
+            // Thời gian rơi ngẫu nhiên
+            const duration = Math.random() * 3 + 2;
+            item.style.animationDuration = `${duration}s`;
+            
+            // Xoay ngẫu nhiên
+            const rotation = Math.random() * 720 - 360;
+            item.style.transform = `rotate(${rotation}deg)`;
+            
+            fallingContainer.appendChild(item);
+            
+            // Bắt đầu animation
+            setTimeout(() => {
+                item.style.opacity = '1';
+            }, 10);
+            
+            // Xóa sau khi rơi xong
+            setTimeout(() => {
+                if (item.parentNode) {
+                    item.parentNode.removeChild(item);
+                }
+            }, duration * 1000);
+            
+            return item;
+        }
+        
+        // Hàm tạo hiệu ứng bung tim hồng
+        function createHeartExplosion(x, y) {
+            // Tạo 50 trái tim hồng bung ra
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'burst-heart';
+                    heart.innerHTML = '❤️';
+                    
+                    // Vị trí bắt đầu
+                    heart.style.left = `${x}px`;
+                    heart.style.top = `${y}px`;
+                    
+                    // Kích thước ngẫu nhiên
+                    const size = Math.random() * 35 + 25;
+                    heart.style.fontSize = `${size}px`;
+                    
+                    // Chọn màu hồng ngẫu nhiên
+                    const pinkColor = pinkColors[Math.floor(Math.random() * pinkColors.length)];
+                    heart.style.color = pinkColor;
+                    
+                    // Hướng bung ngẫu nhiên
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * 250 + 150;
+                    const tx = Math.cos(angle) * distance;
+                    const ty = Math.sin(angle) * distance;
+                    
+                    heart.style.setProperty('--tx', `${tx}px`);
+                    heart.style.setProperty('--ty', `${ty}px`);
+                    
+                    // Thời gian bung
+                    const duration = Math.random() * 0.8 + 0.5;
+                    heart.style.animationDuration = `${duration}s`;
+                    
+                    heartExplosion.appendChild(heart);
+                    
+                    // Bắt đầu animation
+                    setTimeout(() => {
+                        heart.style.opacity = '1';
+                    }, 10);
+                    
+                    // Xóa sau animation
+                    setTimeout(() => {
+                        if (heart.parentNode) {
+                            heartExplosion.removeChild(heart);
+                        }
+                    }, duration * 1000);
+                }, i * 20); // Trải đều thời gian
+            }
+            
+            // Tạo hiệu ứng thứ cấp - các trái tim nhỏ
+            setTimeout(() => {
+                for (let i = 0; i < 30; i++) {
+                    setTimeout(() => {
+                        const smallHeart = document.createElement('div');
+                        smallHeart.className = 'burst-heart';
+                        smallHeart.innerHTML = '❤️';
+                        
+                        smallHeart.style.left = `${x}px`;
+                        smallHeart.style.top = `${y}px`;
+                        
+                        const smallSize = Math.random() * 20 + 15;
+                        smallHeart.style.fontSize = `${smallSize}px`;
+                        
+                        const smallPinkColor = pinkColors[Math.floor(Math.random() * pinkColors.length)];
+                        smallHeart.style.color = smallPinkColor;
+                        
+                        const smallAngle = Math.random() * Math.PI * 2;
+                        const smallDistance = Math.random() * 100 + 50;
+                        const smallTx = Math.cos(smallAngle) * smallDistance;
+                        const smallTy = Math.sin(smallAngle) * smallDistance;
+                        
+                        smallHeart.style.setProperty('--tx', `${smallTx}px`);
+                        smallHeart.style.setProperty('--ty', `${smallTy}px`);
+                        
+                        const smallDuration = Math.random() * 0.5 + 0.3;
+                        smallHeart.style.animationDuration = `${smallDuration}s`;
+                        
+                        heartExplosion.appendChild(smallHeart);
+                        
+                        setTimeout(() => {
+                            smallHeart.style.opacity = '1';
+                        }, 10);
+                        
+                        setTimeout(() => {
+                            if (smallHeart.parentNode) {
+                                heartExplosion.removeChild(smallHeart);
+                            }
+                        }, smallDuration * 1000);
+                    }, i * 30);
+                }
+            }, 300);
+        }
+        
+        // Hàm xử lý tap
+        function handleTap(x, y) {
+            clickCount++;
+            
+            // Tạo hình rơi
+            createFallingItem(x, y, isStarTurn);
+            
+            // Tạo hiệu ứng tap iOS style
+            createIOSTapEffect(x, y);
+            
+            // Đổi lượt
+            isStarTurn = !isStarTurn;
+            
+            // Kiểm tra điều kiện hiển thị thông điệp
+            if (clickCount === 10 && !message1Shown) {
+                showMessage1();
+                message1Shown = true;
+            }
+            
+            if (clickCount === 20 && !message2Shown) {
+                showMessage2(x, y);
+                message2Shown = true;
+            }
+        }
+        
+        // Hàm tạo hiệu ứng tap iOS
+        function createIOSTapEffect(x, y) {
+            const effect = document.createElement('div');
+            effect.className = 'ios-tap-effect';
+            effect.style.left = `${x}px`;
+            effect.style.top = `${y}px`;
+            
+            document.body.appendChild(effect);
+            
+            // Xóa sau animation
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    document.body.removeChild(effect);
+                }
+            }, 600);
+        }
+        
+        // Hàm hiển thị thông điệp 1
+        function showMessage1() {
+            message1.classList.add('show');
+            
+            // Tạo hiệu ứng trái tim rơi xung quanh
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const x = Math.random() * window.innerWidth;
+                    createFallingItem(x, -50, false); // Trái tim hồng
+                }, i * 200);
+            }
+            
+            // Tự động tắt sau 3 giây
+            setTimeout(() => {
+                message1.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Hàm hiển thị thông điệp 2
+        function showMessage2(x, y) {
+            // Tạo hiệu ứng bung tim hồng
+            createHeartExplosion(x, y);
+            
+            // Tạo mưa tim hồng
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const rainX = Math.random() * window.innerWidth;
+                    createFallingItem(rainX, -50, false); // Trái tim hồng
+                }, i * 150);
+            }
+            
+            // Hiển thị thông điệp sau 0.8 giây
+            setTimeout(() => {
+                message2.classList.add('show');
+            }, 800);
+            
+            // Tự động tắt sau 5 giây
+            setTimeout(() => {
+                message2.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Hàm vẽ trên canvas với màu hồng
+        function drawOnCanvas(x1, y1, x2, y2) {
+            // Chọn màu hồng ngẫu nhiên
+            const pinkColor = pinkColors[Math.floor(Math.random() * pinkColors.length)];
+            
+            ctx.strokeStyle = pinkColor;
+            ctx.shadowColor = pinkColor;
+            ctx.shadowBlur = 10;
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            
+            // Reset shadow
+            ctx.shadowBlur = 0;
+            
+            // Tạo hình rơi ngẫu nhiên khi vẽ (40% cơ hội)
+            if (Math.random() > 0.6) {
+                createFallingItem(x2, y2, Math.random() > 0.5);
+            }
+        }
+        
+        // Hàm xử lý sự kiện iOS tối ưu
+        function initEventListeners() {
+            // Xử lý click chuột
+            document.addEventListener('click', (e) => {
+                handleTap(e.clientX, e.clientY);
+            });
+            
+            // Xử lý touch cho iOS
+            let touchStartTime = 0;
+            
+            document.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                touchStartTime = Date.now();
+                
+                const touch = e.touches[0];
+                const x = touch.clientX;
+                const y = touch.clientY;
+                
+                handleTap(x, y);
+                
+                // Bắt đầu vẽ
+  
